@@ -3,6 +3,8 @@ import { Construct } from 'constructs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { PythonFunction, PythonLayerVersion } from '@aws-cdk/aws-lambda-python-alpha';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as iam from 'aws-cdk-lib/aws-iam'; // IAMポリシーの追加
 import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { Duration } from 'aws-cdk-lib';
@@ -14,7 +16,7 @@ export class BotStack extends cdk.Stack {
 
 
     const layer =  new lambda.LayerVersion(this, 'discordLayer', {
-      code: lambda.Code.fromAsset('../po/python.zip'),
+      code: lambda.Code.fromAsset('../package_zip/python.zip'),
       compatibleRuntimes: [lambda.Runtime.PYTHON_3_12],
     });
 
@@ -55,9 +57,6 @@ export class BotStack extends cdk.Stack {
     const eventSource = new lambdaEventSources.SqsEventSource(queue); // sqsをトリガにした
     chatGPTrequest.addEventSource(eventSource);
 
-    
-
-
 
         // Lambdaの実行ロールにSSMポリシーを付与
     discordIntract.addToRolePolicy(new iam.PolicyStatement({
@@ -96,6 +95,13 @@ export class BotStack extends cdk.Stack {
       ],
       resources: ["arn:aws:kms:*:*:key/*"], // KMSキーのARNを指定 (必要に応じて制限)
     }));
+
+    const do_not_stop_lambda = new events.Rule(this, 'ScheduleRule', {
+      schedule: events.Schedule.expression('rate(4 minutes)'), // 4分ごとのスケジュール
+    });
+    // ルールにLambdaをターゲットとして追加
+    do_not_stop_lambda.addTarget(new targets.LambdaFunction(discordIntract));
+    do_not_stop_lambda.addTarget(new targets.LambdaFunction(chatGPTrequest));
 
     // REST API Gatewayの作成
     const api = new apigateway.RestApi(this, 'resDiscord', {

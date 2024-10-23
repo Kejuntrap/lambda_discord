@@ -57,12 +57,17 @@ def chatgpt_sender(prompt:str) -> str:
         return f"Error: {e}"
 
 def lambda_handler(event, context):
-    request_body = json.loads(event.get("body", "{}"))
-    headers = event.get("headers", {})
+    if event.get("source") == "aws.events":
+        return {
+            'statusCode': 200
+        }
+    else:
+        request_body = json.loads(event.get("body", "{}"))
+        headers = event.get("headers", {})
 
-    bot_token:str = get_parameter(ssm,'/discord_ddargi/BOT_ACCESS_TOKEN')
+        bot_token:str = get_parameter(ssm,'/discord_ddargi/BOT_ACCESS_TOKEN')
 
-    msg = json.loads(event['Records'][0]['body'])
-    print(msg)
+        msg = json.loads(event['Records'][0]['body'])
+        print(msg)
 
-    discord_sender(msg,bot_token)
+        discord_sender(msg,bot_token)
