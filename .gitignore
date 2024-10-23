@@ -1,0 +1,6 @@
+venv
+package_zip
+.env
+bot/aws/dist
+bot/node_modules
+bot/cdk.out
