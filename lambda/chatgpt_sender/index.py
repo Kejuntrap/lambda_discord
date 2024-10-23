@@ -28,7 +28,6 @@ def discord_sender(msg:dict,bot_token:str):
     header = { "Authorization": f"Bot {bot_token}" }
     response_data = {"content":f"<@{user_id}> chatGPTのお答えだよ。\n質問:{source_content}\n\n回答:{chatGPT_ans}"}
     result = requests.post(url=url_to_send,data=response_data,headers=header)
-    print(str(result))
 
 
 def chatgpt_sender(prompt:str) -> str:
@@ -68,6 +67,6 @@ def lambda_handler(event, context):
         bot_token:str = get_parameter(ssm,'/discord_ddargi/BOT_ACCESS_TOKEN')
 
         msg = json.loads(event['Records'][0]['body'])
-        print(msg)
+        print(f'{msg=}')
 
         discord_sender(msg,bot_token)
