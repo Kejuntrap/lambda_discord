@@ -1,10 +1,10 @@
-# package
+# lambda_discord
 
 https://blog.shikoan.com/discord-bot-lambda-1/
 
 が参考になる。
 
-##　パッケージの追加
+## パッケージの追加
 
 ```
 docker run --rm -it -v $(pwd):/layer python:3.12 /bin/bash
@@ -40,3 +40,7 @@ zip にするには
 apt update && apt install -y zip
 zip -r9 python.zip python/
 ```
+
+## cdk
+
+deploy は `cdk deploy` するだけ
